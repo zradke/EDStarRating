@@ -18,6 +18,8 @@
 {
     
     // Insert code here to initialize your application
+    [_starRatingImage setAccessibilityElement:YES];
+    _starRatingImage.accessibilityLabel = @"Rating";
     _starRatingImage.backgroundImage=[NSImage imageNamed:@"starsbackground.png"];
     _starRatingImage.backgroundColor  = [NSColor clearColor];
     _starRatingImage.starImage = [NSImage imageNamed:@"star.png"];
@@ -31,7 +33,8 @@
     [_starRatingImage setTarget:self];
     [_starRatingImage  setNeedsDisplay];
     
-    
+    [_starRating setAccessibilityElement:YES];
+    _starRating.accessibilityLabel = @"Rating";
     _starRating.backgroundColor  = [NSColor clearColor];
     _starRating.starImage = [NSImage imageNamed:@"star.png"];
     _starRating.starHighlightedImage = [NSImage imageNamed:@"starhighlighted.png"];
@@ -49,7 +52,6 @@
     {
         NSLog(@"Star Rating changed to %.1f" ,rating);
     };
-    
     
     // Set the control size equal to the background image size
     NSRect frame =_starRatingImage.frame;

@@ -50,7 +50,9 @@ typedef UIImage     EDImage;
 
 #if EDSTAR_MACOSX
 @property (nonatomic,strong) EDColor *backgroundColor;
+@property (nonatomic,copy) NSString *accessibilityLabel;
 #endif
+
 @property (nonatomic,strong) EDImage *backgroundImage;
 @property (nonatomic,strong) EDImage *starHighlightedImage;
 @property (nonatomic,strong) EDImage *starImage;

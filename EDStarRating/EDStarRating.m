@@ -46,7 +46,16 @@
     halfStarThreshold=ED_DEFAULT_HALFSTAR_THRESHOLD;
     [self setBackgroundColor:[EDColor clearColor]];
     
+    
+    #if EDSTAR_MACOSX
+    [self setAccessibilityElement:YES];
+    [self setAccessibilityEnabled:YES];
+    self.accessibilityLabel = @"";
+    #else
+    [self setIsAccessibilityElement:YES];
+    #endif
 }
+
 #if  EDSTAR_MACOSX
 
 - (id)initWithFrame:(NSRect)frame
@@ -100,8 +109,18 @@
 
 -(void)setRating:(float)ratingParam
 {
-    _rating = ratingParam;
-    [self setNeedsDisplay];
+    if (_rating != ratingParam)
+    {
+        _rating = ratingParam;
+        
+#if EDSTAR_MACOSX
+        NSAccessibilityPostNotification(self, NSAccessibilityValueChangedNotification);
+#else
+        [self sendActionsForControlEvents:UIControlEventValueChanged];
+#endif
+        
+        [self setNeedsDisplay];
+    }
 }
 
 -(void)setDisplayMode:(EDStarRatingDisplayMode)dispMode
@@ -354,6 +373,10 @@
     if( self.returnBlock)
         self.returnBlock(self.rating);
     
+#if EDSTAR_MACOSX
+    NSAccessibilityPostNotification(self, NSAccessibilityValueChangedNotification);
+#endif
+    
 }
 
 
@@ -411,5 +434,74 @@
     [self setNeedsDisplay];
 }
 #endif
+
+
+#pragma mark - Accessibility
+- (NSString *)accessibilityValue
+{
+    return [NSNumberFormatter localizedStringFromNumber:@(self.rating) numberStyle:NSNumberFormatterDecimalStyle];
+}
+
+#if EDSTAR_MACOSX
+- (NSString *)accessibilityRole
+{
+    return NSAccessibilitySliderRole;
+}
+#else
+- (UIAccessibilityTraits)accessibilityTraits
+{
+    return [super accessibilityTraits] | UIAccessibilityTraitAdjustable;
+}
+#endif
+
+- (BOOL)accessibilityPerformIncrement
+{
+    if (self.rating != self.maxRating)
+    {
+        self.rating = MIN((self.rating + 1.0), self.maxRating);
+        
+        if( self.delegate && [self.delegate respondsToSelector:@selector(starsSelectionChanged:rating:)] )
+            [self.delegate starsSelectionChanged:self rating:self.rating];
+        
+        if( self.returnBlock)
+            self.returnBlock(self.rating);
+        
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
+
+- (BOOL)accessibilityPerformDecrement
+{
+    if (self.rating > 0)
+    {
+        self.rating = MAX((self.rating - 1), 0);
+        
+        if( self.delegate && [self.delegate respondsToSelector:@selector(starsSelectionChanged:rating:)] )
+            [self.delegate starsSelectionChanged:self rating:self.rating];
+        
+        if( self.returnBlock)
+            self.returnBlock(self.rating);
+        
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
+
+- (void)accessibilityIncrement
+{
+    [self accessibilityPerformIncrement];
+}
+
+- (void)accessibilityDecrement
+{
+    [self accessibilityPerformDecrement];
+}
 
 @end
